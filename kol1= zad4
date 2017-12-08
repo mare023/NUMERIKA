@@ -1,0 +1,74 @@
+clc; clear all;
+a = 1; b = 3;
+
+% vizuelizacija problema
+x = linspace(a, b, 100);
+y1 = sin(x).*x;
+y2 = 2 + cos(x).*(x.^2);
+plot(x,y1,x,y2)
+
+% funkcija i njen izvod
+fun = @(x) sin(x).*x - 2 - cos(x).*(x.^2);
+funDerr = @(x) sin(x) + cos(x).*x + sin(x).*(x.^2) - cos(x)*2.*x;
+
+% a) P(x) = F(x) => trazimo nulu funkcije P(x) - F(x)
+x=nulaTangenta(fun, funDerr, 1, 10000, 0.00001)%nulaTangenta nam daje tacku preseka
+% provera:
+pr = fun(x);
+
+% b) Za polinom 5. stepena nam je potrebno 6 tacaka. Uzecemo 6 ravnomerno
+% rasporedjenih tacaka na intervalu [-15, -5]
+tacke = linspace(-15, -5, 6); %uzimanje 6 ravnomerno rasp. tacaka
+vrednosti = sin(tacke) .* tacke; %ubacivanje tacki u funkciju
+p = linterp(tacke, vrednosti)  %Linterp - Lagranz, tako se trazi
+%ZASTO OBRNUTO ? 
+% prakticno kraj zadatka
+
+% vizuelizacija resenja:
+x = linspace(-15, -5, 100); % 100 tacaka na int od -15 do -5
+y = sin(x) .* x;   %vrednost funkcije
+yp = polyval(p,x);  % vrednost polinoma p dobijenog interpolacijom u tacki x
+plot(x,y,x,yp)   % plotovanje
+
+% c)
+tacke = [-5.2, -7.3, -6.1, -9.5];
+vrednosti = polyval(p,tacke)
+% provera - vrednosti polinoma treba da su bliske vrednostima funkcije
+%koju aproksimira
+vrednosti_funkcije = sin(tacke) .* tacke
+
+% d) p = -6 => trazimo nulu funkcije p+6
+% vizuelizacija problema:
+x = linspace(-11, -9, 100); % znamo da se x nalazi na intervalu od -11 do -9
+yp = polyval(p,x); % izracunava sve vrednosti y po x iz prethodne linije, ubacuje x u polinom i izracunava y 
+line6 = ones(1, length(x))*(-6);% postavlja sve elemente na -6
+plot(x, yp, x, line6);
+
+fun2 = @(x) polyval(p,x) + 6;
+pd = polyder(p);
+fun2Derr = @(x) polyval(pd,x);
+    
+xt=nulaTangenta(fun2, fun2Derr, -11, 1000, 0.00001)
+%provera:
+pr = polyval(p,x)
+
+% dobijeno je resenje -12.1684, za koje je zaista p(x) = -6, ali ovo
+% resenje se ne nalazi u interavlu [-11, -9]. Probacemo da stavimo x0=9:
+xt=nulaTangenta(fun2, fun2Derr, -9, 1000, 0.00001)
+%provera:
+pr = polyval(p,xt)
+
+% sada dobijeno resenje jeste u trazenom intervalu
+% e)
+x = linspace(-20, 0, 100);
+hold on
+plot(x, fun2(x), x, zeros(1,length(x)), xt, 0,'ro');
+% na grafiku se vidi da xt nije jedina vrednost na intervalu [-20,0]
+% u kojoj polinom ima vrednost -6 
+
+% f)
+x = linspace(-16, -12, 100);
+y = fun2(x);
+[yt_max, index] = max(y);
+plot(x(index),yt_max,'x') 
+hold off
